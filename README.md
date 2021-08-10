@@ -24,3 +24,4 @@ Editors should be familiar with and use the following:
 
 ### Links
 - [Working Group Home Page](https://w3c.github.io/i18n-activity/i18n-wg/)
+
