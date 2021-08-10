@@ -23,4 +23,6 @@ Editors should be familiar with and use the following:
 - [Editorial guidelines for working with i18n documents](https://www.w3.org/International/i18n-activity/guidelines/editing)
 
 ### Links
+
 - [Working Group Home Page](https://www.w3.org/International/i18n-activity/i18n-wg/)
+
