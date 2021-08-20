@@ -15,13 +15,14 @@ To follow the work, you can 'Watch' this repository using the control above, or 
 
 ### Contributing
 
-All contributors should read and agree with [CONTRIBUTING.md](https://github.com/w3c/localizable-manifests/blob/gh-pages/CONTRIBUTING.md).
+All contributors should read and agree with [CODE_OF_CONDUCT.md](https://github.com/w3c/localizable-manifests/blob/gh-pages/CODE_OF_CONDUCT.md).
 
 Editors should be familiar with and use the following:
 
-- [Github guidelines for working with i18n documents](https://w3c.github.io/i18n-activity/guidelines/github)
-- [Editorial guidelines for working with i18n documents](https://w3c.github.io/i18n-activity/guidelines/editing)
+- [Github guidelines for working with i18n documents](https://www.w3.org/International/i18n-activity/guidelines/github)
+- [Editorial guidelines for working with i18n documents](https://www.w3.org/International/i18n-activity/guidelines/editing)
 
 ### Links
-- [Working Group Home Page](https://w3c.github.io/i18n-activity/i18n-wg/)
+
+- [Working Group Home Page](https://www.w3.org/International/i18n-activity/i18n-wg/)
 
