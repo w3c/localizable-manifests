@@ -60,7 +60,6 @@
           <p><dfn data-lt="packaged" class="lint-ignore export">Packaged Manifest.</dfn> Some manifests are packaged with other files to form an application or document. Since the manifest is generally consumed as part of the larger set of content and the content is downloaded as a single unit, manifests of this type can use more modular localization strategies, such as using multiple files with names or paths based on the locale.</p>
           
           <p><dfn data-lt="shorthand" class="lint-ignore export">Shorthand Description Manifest.</dfn> Some manifests are meant to be used as a shorthand description of an application, document, or other resource. Manifests of this type are often downloaded by the client, sometimes as a precursor to retrieving the actual resource or its component parts. Since retrieving multiple files has latency, size, and storage implications, this type of manifest usually seeks to use a single file or other less-modular approaches.</p>
-      </section>
 
       <section id="language-preferences">
 		  <h2>Managing Language Preferences</h2>
@@ -72,18 +71,24 @@
           <p>Manifests need to match a user's language preference to the available localized resources. The user's locale preference can include more than just a primary language subtag. It might include the script (in tags such as <code>zh-Hans</code>, meaning "Chinese as written in the Simplified Han script") or region (in tags such as <code>fr-CA</code>, meaning "French as used in Canada")&mdash;or both. Some systems support <a>Unicode Locale Identifiers</a>, an extension to [[BCP47]] that includes tailoring such as calendars, number shaping, collation, and more. For more information, see [[LTLI]].</p>
           
           <p>Matching localized resources to a user's locale preference usually involves "locale fallback", using a mechanism such as [[BCP47]]'s "lookup" matching scheme or [[CLDR]]'s "best match" scheme. These involve comparing the language tags on each resource seeking the <em>longest</em> tag that completely matches the user's preference. There is also, usually, a default locale to use for cases in which none of the localized resources match the user's preference.</p>
+          
+          <p class="issue">Include an example showing how fallback works so readers understand why matching requires looking at the complete collection of resources.</p>
+      </section>
       </section>
       
-      <section id="">
+      <section id="indicating">
 		  <h2>Indicating Language and Direction</h2>
 		  
 		  <p><a>Natural language</a> values stored in a manifest, like any document format or data structure, require language and direction metadata in order to be used by <a>consumers</a> successfully. For detailed information about the requirements, see [[STRING-META]].</p>
 		  
-		  <p>There are four common serializations for string values in a manifest in the following sections. These are generally used together to form a complete localization solution.</p>
+		  <p>There are four common serializations for string values in a manifest, and these are described in this section. Specifications are intended to use these together to form a complete localization solution.</p>
 		  
 		  <section id="non-linguistic">
-			  <h4>Non-Linguistic Fields</h4>
-		  <p>For <a>non-linguistic fields</a>, that is, strings that contain data that is not human language, no language or direction metadata should be associated with the value. If a language tag is required for the data, the value <code>zxx</code> (Non-Linguistic) should be used. The direction of the text should be set to "auto".</p>
+		  <h4>Non-Linguistic Fields</h4>
+			  
+		  <p>For <a>non-linguistic fields</a> (that is, strings that contain data that is not human language) language or direction metadata SHOULD NOT be associated with the value. Note that this includes <a data-cite="international-specs/#application_internal">application-internal data values</a> [[INTERNATIONAL-SPECS]].</p>
+		  
+		  <p>If a <a>consumer</a> is required to assign a language tag to the data, the value <code>zxx</code> (Non-Linguistic) SHOULD be used. If a <a>consumer</a> is required to assign a <a>base direction</a> to the data, the value <code>auto</code> SHOULD be used.</p>
 		  
   
 		  <aside class="example" title="Examples of non-linguistic string values">
@@ -118,7 +123,12 @@
 			  
 			  <p>For specifications that can make use of the [[JSON-LD]] <code>@context</code> mechanism, use the <code>@language</code> and <code>@direction</code> fields to supply the document level defaults.</p>
 			  
-			  <p>If your specification must define its own document level defaults, provide two optional fields. The document's default language field should be called <code>language</code> and can contain a valid [[BCP47]] language tag. The document's default <a>base direction</a> field should be called <code>direction</code> and support the values <code>ltr</code>, <code>rtl</code>, or <code>auto</code>.</p>
+			  <p>If your specification defines its own document level defaults, provide two optional fields:</p>
+			  
+			  <ul>
+				  <li>The document's default language field SHOULD be called <code>language</code> and SHOULD be specified to contain a valid [[BCP47]] language tag. Specifications SHOULD specify that implementations are only require to check if a [[BCP47]] language tag is "well-formed".</li>
+				  <li>The document's default <a>base direction</a> field SHOULD be called <code>direction</code> and support the values <code>ltr</code>, <code>rtl</code>, or <code>auto</code>.</li>
+		      </ul>
 
               <aside class="example" title="Example of document level defaults">
               <pre class="json">
@@ -153,6 +163,7 @@
 			  <p>The language map structure presented in this section is not the same as the language maps found in <a data-cite="JSON-LD#string-internationalization">JSON-LD String Internationalization</a> [[JSON-LD]].</p>
 		  </aside>
 		  
+		  
 		  <aside class="example" title="A localizable language map">
 		  <pre class="json">
 "field-name-goes-here": {
@@ -162,6 +173,21 @@
     "ar":    {"value": "هذه عربية", "dir": "rtl"}
 }
 		  </pre>
+		  </aside>
+		  
+		  <aside class="note">
+			  <p>This structure permits a language tag as the key and also as part of the value. These two values do not have to match. The value of the key indicates the <a>locale</a> of the intended audience, while the language tag of the value represents information about the actual language of the string.</p>
+			  <p>These values might not match in cases where additional specificity is needed to get the correct rendering or processing of the value or, occasionally, when a foreign language value <strong><em>is</em></strong> the intended localization (and the language needs to be overridden, such as to select voices or dictionaries in assistive technology):</p>
+			  <pre class="json">
+"extra-rendering-help": {
+	"zh": {"value": "你好世界！", "lang": "zh-Hans"}
+}
+				  
+"hello-in-french": {
+	"en": {"value": "Bonjour!", "lang": "fr"},
+	"de": {"value": "Bonjour!", "lang": "fr"}
+}
+			  </pre>
 		  </aside>
 		  </section>
 		  
