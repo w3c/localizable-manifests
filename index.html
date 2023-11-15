@@ -54,24 +54,30 @@
         
       </section>
       <section id="use-cases">
-		  <h2>Requirements and Use Cases</h2>
+		  <h2>Use Cases</h2>
 		  <p>There are different ways that manifest files might be used on the Web and these affect the choice of manifest localization strategy.</p> 
 
           <p><dfn data-lt="packaged" class="lint-ignore export">Packaged Manifest.</dfn> Some manifests are packaged with other files to form an application or document. Since the manifest is generally consumed as part of the larger set of content and the content is downloaded as a single unit, manifests of this type can use more modular localization strategies, such as using multiple files with names or paths based on the locale.</p>
           
           <p><dfn data-lt="shorthand" class="lint-ignore export">Shorthand Description Manifest.</dfn> Some manifests are meant to be used as a shorthand description of an application, document, or other resource. Manifests of this type are often downloaded by the client, sometimes as a precursor to retrieving the actual resource or its component parts. Since retrieving multiple files has latency, size, and storage implications, this type of manifest usually seeks to use a single file or other less-modular approaches.</p>
+      </section>
 
-          <p>Another consideration is the <a>language negotiation</a> strategy employed by the specification. If a manifest can be generated on demand (rather than being cached at a well-known URL), then the localization might be applied on a per-request basis. This points more toward a <a>shorthand</a> manifest style. In other cases, where some implementations might be able to negotiate while others cannot, it is important for the specification not to limit the choice and allow for various different mechanisms to be used.</p>
+      <section id="language-preferences">
+		  <h2>Managing Language Preferences</h2>
+		  
+          <p>Another consideration is the <a>language negotiation</a> strategy employed by the specification. If a manifest can be generated on demand (rather than being cached at a well-known URL), then the localization might be applied on a per-request basis. This points more toward a <a>shorthand</a> manifest style. In other cases, where some implementations might be able to negotiate while others cannot, it might be important for the specification to permit different strategies to be used.</p>
           
           <p>Bear in mind that modern operating environments support quite extensive sets of available locales and that application owners often wish to satisfy diverse audiences with a single localized application or document. While examples in specifications necessarily are constrained to perhaps three or four locales, actual applications with 50 or more specific locales are not uncommon.</p>
           
-          <p>In addition, users often have "overspecified" locales containing tailorings that match a given users local needs. Long locale identifiers, which are expressed as BCP47 language tags, sometimes need to be trimmed or have extensions removed when searching for localized resources (such as a manifest).</p>
+          <p>Manifests need to match a user's language preference to the available localized resources. The user's locale preference can include more than just a primary language subtag. It might include the script (in tags such as <code>zh-Hans</code>, meaning "Chinese as written in the Simplified Han script") or region (in tags such as <code>fr-CA</code>, meaning "French as used in Canada")&mdash;or both. Some systems support <a>Unicode Locale Identifiers</a>, an extension to [[BCP47]] that includes tailoring such as calendars, number shaping, collation, and more. For more information, see [[LTLI]].</p>
+          
+          <p>Matching localized resources to a user's locale preference usually involves "locale fallback", using a mechanism such as [[BCP47]]'s "lookup" matching scheme or [[CLDR]]'s "best match" scheme. These involve comparing the language tags on each resource seeking the <em>longest</em> tag that completely matches the user's preference. There is also, usually, a default locale to use for cases in which none of the localized resources match the user's preference.</p>
       </section>
       
       <section id="">
 		  <h2>Indicating Language and Direction</h2>
 		  
-		  <p>Natural language values stored in a manifest, like any document format or data structure, require language and direction metadata in order to be used by <a>consumers</a> successfully. For detailed information about the requirements, see [[STRING-META]].</p>
+		  <p><a>Natural language</a> values stored in a manifest, like any document format or data structure, require language and direction metadata in order to be used by <a>consumers</a> successfully. For detailed information about the requirements, see [[STRING-META]].</p>
 		  
 		  <p>There are four common serializations for string values in a manifest in the following sections. These are generally used together to form a complete localization solution.</p>
 		  
@@ -79,6 +85,7 @@
 			  <h4>Non-Linguistic Fields</h4>
 		  <p>For <a>non-linguistic fields</a>, that is, strings that contain data that is not human language, no language or direction metadata should be associated with the value. If a language tag is required for the data, the value <code>zxx</code> (Non-Linguistic) should be used. The direction of the text should be set to "auto".</p>
 		  
+  
 		  <aside class="example" title="Examples of non-linguistic string values">
 			  <pre class="javascript">
 "isbn": "978-123456789-X",
@@ -89,8 +96,11 @@
 		  
 		  <section id="single-linguistic-field">
 			  <h4>Single-Language Localizable Text Field</h4>
-		  <p>For <a>localizable text</a> fields that appear in a single language, use an object containing the value, language, and direction. A common serialization in JSON looks like this:</p>
+		  <p>For <a>localizable text</a> fields that appear in a single language, use a data structure to represent the value. The recommended representation is an object with three fields. The field <code>value</code> contains the actual string. The field <code>lang</code> contains a valid [[BCP47]] language tag. The field <code>dir</code> contains the string's <a>base direction</a> (one of the values <code>ltr</code>, <code>rtl</code>, or <code>auto</code>).</p>
 		  
+		  <p>See <a data-cite="STRING-META#use-the-localizable-data-structure">The Localizable WebIDL Dictionary</a> in [[STRING-META]].</p>
+		  
+		  <aside class="example" title="Example of a localizable text field">
 		  <pre class="json" id="localizable-text-field">
 "field-name-goes-here": {
     "value": "This is the string value",
@@ -98,41 +108,49 @@
     "dir": "ltr"
 }
 		  </pre>
+		  </aside>
 		  </section>
 		  
 		  <section id="language-defaults">
 			  <h4>Document-Level Defaults</h4>
 			  
-			  <p>Single-language localizable text fields are at their best if there are only a few natural language strings in a given document. When a document or manifest contains many natural language strings, this becomes inefficient. To reduce the complexity of encoding these strings, one workaround is to establish a document-level default for language and base direction. These are separate values, as language does not imply direction. There should still be the ability to override either value on any given string value by using the single-language <a>localizable text</a> field representation found <a href="#single-linguistic-field">above</a>.</p>
+			  <p>Single-language localizable text fields are at their best if there are only a few natural language strings in a given document. When a document such as a manifest contains many natural language strings, this becomes inefficient. To reduce the complexity of encoding these strings, one workaround is to establish a document-level default for language and base direction. These are separate values, as language does not imply direction. There should still be the ability to override either value on any given string value by using the single-language <a>localizable text</a> field representation found <a href="#single-linguistic-field">above</a>.</p>
 			  
 			  <p>For specifications that can make use of the [[JSON-LD]] <code>@context</code> mechanism, use the <code>@language</code> and <code>@direction</code> fields to supply the document level defaults.</p>
 			  
-			  <p>If your specification must define its own document level defaults, provide two optional fields. The document's default language field should be called <code>language</code> and can contain a valid [[BCP47]] language tag. The document's default base direction field should be called <code>direction</code> and support the values "ltr", "rtl", and "auto".</p>
+			  <p>If your specification must define its own document level defaults, provide two optional fields. The document's default language field should be called <code>language</code> and can contain a valid [[BCP47]] language tag. The document's default <a>base direction</a> field should be called <code>direction</code> and support the values <code>ltr</code>, <code>rtl</code>, or <code>auto</code>.</p>
 
-<pre class="javascript">
+              <aside class="example" title="Example of document level defaults">
+              <pre class="json">
 "language": "en-US",
 "direction": "ltr",
 //...
-"name": "This string is in U.S. English",
+"some-field-name": "This string is in U.S. English, thanks to the default",
 // the following field overrides the language but not the direction:
-"description": {
-   "value": "Diese Zeichenfolge ist auf Englisch",
+"another-field-name": {
+   "value": "Diese Zeichenfolge ist auf Deutsch",
    "lang": "de"
 }
-</pre>
+              </pre>
+              </aside>
+              
+              <aside class="note">
+				  <p><strong>Document level defaults are not a complete solution on their own.</strong> Specifications can define a document-level defaulting mechanism to assist users who often create monolingual documents. They are particularly useful when used in conjunction with the <a href="#locale-specific">locale-specific</a> or <a href="#hybrid">hybrid</a> approaches described later in this document. However, document-level defaults should only be used to augment the ability for users to provide string-specific metadata.</p>
+              </aside>
 		  </section>
 		  
 		  
 		  <section id="language-maps">
-			  <h4>Language Maps</h4>
+		  <h4>Language Maps</h4>
+		  
 		  <p>The world is not monolingual. Having documents that contain only a single language would mean providing many iterations of the document, one for each language, in order to localize the manifest. This also might require language negotiation when requesting the manifest.</p>
 		  
-		  <p>One way to address this is to allow multilingual values for a field inside the manifest document.</p>
+		  <p>One way to address this is to allow multilingual values for each <a>localizable text</a> field inside the manifest document.</p>
 		  
 		  <p>Language selection is not merely the exact matching of language tag string values to the user's preferred locale. The usual <a href="#localizable-text-field">object representation</a> of a <a>localizable text</a> field requires that the object be deserialized in order to discover the language tag associated with the value. This can be inefficient when there are many values in a given manifest file. In these cases, the best practice is to use a language map to organize <a>localizable text</a> values. Such a map exposes the language tag for the purposes of selection, but still uses an object representation on the value side of the map, since both language and direction might need to be overridden for a given string value.</p>
 		  
 		  <aside class="note">
-			  <p>The language map presented in this section is not the same as the language maps found in [[JSON-LD]] or [[JSON-SCHEMA]].</p>
+			  <p>The language map structure presented in this section is not the same as the language maps found in <a data-cite="JSON-LD#string-internationalization">JSON-LD String Internationalization</a> [[JSON-LD]].</p>
 		  </aside>
 		  
 		  <aside class="example" title="A localizable language map">
