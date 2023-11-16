@@ -87,13 +87,17 @@
 }
 			  </pre>
 			  
-			  <p>If the user's locale preference were <code>en-GB</code> or <code>en-US</code>, the best match is included in the list. Obviously, the entire list must be read to find the best match, since the entry for <code>en</code> also matches either value.</p>
+			  <p>If the user's <a>locale</a> preference were <code>en-GB</code> or <code>en-US</code>, the best match is included in the list. Obviously, the entire list must be read to find the best match, since the entry for <code>en</code> could be considered a match for either value.</p>
 			  
-			  <p>If the user's locale preference were <code>en-AE</code> (English as used in the United Arab Emirates), the best match in the list is <code>en</code>, although some implementations of best matching will apply out-of-band information to potentially match a longer tag.</p>
+			  <p>If the user's locale preference were <code>en-AE</code> (English as used in the United Arab Emirates), the best match in the list is <code>en</code>, although some implementations of best matching might apply out-of-band information to potentially match a longer tag.</p>
 			  
-			  <p>If the user's locale preference were <code>fr-FR</code> (French as used in France), none of the values match and some form of defaulting would be need to select the language to use.</p>
+			  <p>If the user's locale preference were <code>fr-FR</code> (French as used in France), none of the values match and some form of defaulting would be needed to select the value to use.</p>
 			  
-			  <p>Finally, the user's locale preference could include additional subtags, such as those used to tailor locale setting or such as a language variant. An example of a tailored locale might be <code>en-US-u-hc-h23</code> (US English but with the "hour cycle" set to 24 hour time). For more information on CLDR locale extensions, see [[RFC6067]]. An example of a language variant might be <code>en-GB-oxendict</code> (UK English, but using spelling conventions of the Oxford English Dictionary).</p>
+			  <p>Finally, the user's locale preference could include additional subtags, such as those used to tailor locale settings or such as a language variant. An example of a tailored locale might be <code>en-US-u-hc-h23</code> (US English but with the "hour cycle" set to 24 hour time). An example of a language variant might be <code>en-GB-oxendict</code> (UK English, but using spelling conventions of the Oxford English Dictionary).</p>
+			  
+			  <aside class="note">
+				  <p>For more information about CLDR locale extensions, see [[RFC6067]] or <a href="https://cldr.unicode.org/index/bcp47-extension">Unicode Extensions for BCP47</a> on the Unicode site.</p>
+			  </aside>
 			  
 			  <p>Locale fallback is implemented such that the user's preference is matched against the available list of values, and, if no exact match is found, removing the last subtag and repeating. This is described as "lookup" in the language tag matching part of [[BCP47]] (specifically [[RFC4647]]). Thus, the tag <code>en-GB-oxendict</code> would be compared against the above languge map as follows:</p>
 			  
