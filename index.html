@@ -70,9 +70,41 @@
           
           <p>Manifests need to match a user's language preference to the available localized resources. The user's locale preference can include more than just a primary language subtag. It might include the script (in tags such as <code>zh-Hans</code>, meaning "Chinese as written in the Simplified Han script") or region (in tags such as <code>fr-CA</code>, meaning "French as used in Canada")&mdash;or both. Some systems support <a>Unicode Locale Identifiers</a>, an extension to [[BCP47]] that includes tailoring such as calendars, number shaping, collation, and more. For more information, see [[LTLI]].</p>
           
-          <p>Matching localized resources to a user's locale preference usually involves "locale fallback", using a mechanism such as [[BCP47]]'s "lookup" matching scheme or [[CLDR]]'s "best match" scheme. These involve comparing the language tags on each resource seeking the <em>longest</em> tag that completely matches the user's preference. There is also, usually, a default locale to use for cases in which none of the localized resources match the user's preference.</p>
+          <section id="locale-fallback">
+			  <h4>Matching Language Tags and Locale Fallback</h4>
+			  
+              <p>Matching localized resources to a user's locale preference usually involves "locale fallback", using a mechanism such as [[BCP47]]'s "lookup" matching scheme or [[CLDR]]'s "best match" scheme. These involve comparing the language tags on each <a>resource</a> seeking the <em>longest</em> tag that completely matches the user's preference. There is also, usually, a default locale to use for cases in which none of the localized resources match the user's preference.</p>
+			  
+			  <p>Matching of language tags to available resources (such as found in [[[#path-vs-file]]]) or to items in some form of language map (see [[[#language-maps]]]) can require an implementation to examine all of the available values, as the first potential match might not be the best overall match.</p>
+			  
+			  <p>For example, consider the following language map:</p>
+			  
+			  <pre class="javascript">
+"localized-resource": {
+	"en":     {"value": "This is English"},
+	"en-GB":  {"value": "This is UK English"},
+	"en-US":  {"value": "This is US English"}
+}
+			  </pre>
+			  
+			  <p>If the user's locale preference were <code>en-GB</code> or <code>en-US</code>, the best match is included in the list. Obviously, the entire list must be read to find the best match, since the entry for <code>en</code> also matches either value.</p>
+			  
+			  <p>If the user's locale preference were <code>en-AE</code> (English as used in the United Arab Emirates), the best match in the list is <code>en</code>, although some implementations of best matching will apply out-of-band information to potentially match a longer tag.</p>
+			  
+			  <p>If the user's locale preference were <code>fr-FR</code> (French as used in France), none of the values match and some form of defaulting would be need to select the language to use.</p>
+			  
+			  <p>Finally, the user's locale preference could include additional subtags, such as those used to tailor locale setting or such as a language variant. An example of a tailored locale might be <code>en-US-u-hc-h23</code> (US English but with the "hour cycle" set to 24 hour time). For more information on CLDR locale extensions, see [[RFC6067]]. An example of a language variant might be <code>en-GB-oxendict</code> (UK English, but using spelling conventions of the Oxford English Dictionary).</p>
+			  
+			  <p>Locale fallback is implemented such that the user's preference is matched against the available list of values, and, if no exact match is found, removing the last subtag and repeating. This is described as "lookup" in the language tag matching part of [[BCP47]] (specifically [[RFC4647]]). Thus, the tag <code>en-GB-oxendict</code> would be compared against the above languge map as follows:</p>
+			  
+			  <pre>
+en-GB-oxendict  // no match
+en-GB           // matches en-GB
+en              // if en-GB were not present, matches en
+(default)       // no match, use defaults
+			  </pre>
+          </section>
           
-          <p class="issue">Include an example showing how fallback works so readers understand why matching requires looking at the complete collection of resources.</p>
       </section>
       </section>
       
